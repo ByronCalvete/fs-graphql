@@ -83,6 +83,7 @@ const typeDefs = `
   type Author {
     name: String!
     born: Int
+    bookCount: Int
     id: ID!
   }
 
@@ -98,6 +99,7 @@ const typeDefs = `
     authorCount: Int!
     bookCount: Int!
     allBooks: [Book!]!
+    allAuthors: [Author!]!
   }
 `
 
@@ -105,7 +107,14 @@ const resolvers = {
   Query: {
     authorCount: () => authors.length,
     bookCount: () => books.length,
-    allBooks: () => books
+    allBooks: () => books,
+    allAuthors: () => authors
+  },
+  Author: {
+    bookCount: (root) => {
+      const my_books = books.filter(book => book.author === root.name)
+      return my_books ? my_books.length : 0
+    } 
   }
 }
 
