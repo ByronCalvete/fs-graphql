@@ -11,6 +11,9 @@ dependencies:
   graphql:
     specifier: ^16.11.0
     version: 16.11.0
+  uuid:
+    specifier: ^11.1.0
+    version: 11.1.0
 
 packages:
 
