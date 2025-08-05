@@ -50,9 +50,15 @@ const Authors = ({ setError }) => {
       </table>
       <h3>Set birthyear</h3>
       <form onSubmit={updateAuthor}>
-        <div>
-          name <input value={name} onChange={({ target }) => setName(target.value)} />
-        </div>
+        <label>
+          name
+          <select value={name} onChange={({ target }) => setName(target.value)}>
+            <option value=''>Select an author</option>
+            {authors.map(author =>
+              <option value={author.name}>{author.name}</option>
+            )}
+          </select>
+        </label>
         <div>
           born <input type='number' value={born} onChange={({ target }) => setBorn(Number(target.value))} />
         </div>
