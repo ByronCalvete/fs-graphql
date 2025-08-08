@@ -139,21 +139,26 @@ const resolvers = {
     authorCount: async () => Author.collection.countDocuments(),
     bookCount: async () => Book.collection.countDocuments(),
     allBooks: async (root, args) => {
-      // if (!args.author && !args.genre) {
-      //   return books
-      // }
-      // if (args.author && !args.genre) {
-      //   const author_books = books.filter(book => book.author === args.author)
-      //   return author_books
-      // }
-      // if (!args.author && args.genre) {
-      //   const genre_books = books.filter(book => book.genres.includes(args.genre))
-      //   return genre_books
-      // }
+      if (!args.author && !args.genre) {
+        return Book.find({}).populate('author')
+      }
 
-      // const author_genre_books = books.filter(book => (book.author === args.author && book.genres.includes(args.genre)))
-      // return author_genre_books
-      return Book.find({})
+      if (args.author && !args.genre) {
+        const author = await Author.findOne({ name: args.author })
+        const books = await Book.find({ author: author._id }).populate('author')
+        return books
+      }
+
+      if (!args.author && args.genre) {
+        const books = await Book.find({}).populate('author')
+        const filterBooks = books.filter(book => book.genres.includes(args.genre))
+        return filterBooks
+      }
+
+      const books = await Book.find({}).populate('author')
+      const author = await Author.find({ name: args.author })
+      const author_genre_books = books.filter(book => (book.author._id.toString() === author[0]._id.toString() && book.genres.includes(args.genre)))
+      return author_genre_books
     },
     allAuthors: async () => {
       return Author.find({})
@@ -220,7 +225,7 @@ const resolvers = {
         throw new GraphQLError('Saving book failed', {
           extensions: {
             code: 'BAD_USER_INPUT',
-            invalidArgs: args.name,
+            invalidArgs: args.author,
             error
           }
         })
@@ -228,14 +233,28 @@ const resolvers = {
 
       return book
     },
-    editAuthor: (root, args) => {
-      const author = authors.find(author => author.name === args.name)
+    editAuthor: async (root, args) => {
+      const author = await Author.findOne({ name: args.name })
+
       if (!author) {
         return null
       }
-      const edit_author = { ...author, born: args.setBornTo }
-      authors = authors.map(author => author.name === edit_author.name ? edit_author : author)
-      return edit_author
+
+      author.born = args.setBornTo
+
+      try {
+        await author.save()
+      } catch (error) {
+        throw new GraphQLError('Edit author failed', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.name,
+            error
+          }
+        })
+      }
+
+      return author
     }
   }
 }
