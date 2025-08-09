@@ -1,6 +1,5 @@
 const { ApolloServer } = require('@apollo/server')
 const { startStandaloneServer } = require('@apollo/server/standalone')
-// const { v1: uuid } = require('uuid')
 const { GraphQLError } = require('graphql')
 
 const mongoose = require('mongoose')
@@ -173,14 +172,15 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (root, args) => {
-      // if (books.find(book => book.title === args.title)) {
-      //   throw new GraphQLError('Title must be unique', {
-      //     extensions: {
-      //       code: 'BAD_USER_INPUT',
-      //       invalidArgs: args.title
-      //     }
-      //   })
-      // }
+      const books = await Book.find({})
+      if (books.find(book => book.title === args.title)) {
+        throw new GraphQLError('Title must be unique', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.title,
+          }
+        })
+      }
 
       const author = await Author.findOne({ name: args.author })
       const book = new Book({ ...args })
@@ -203,20 +203,6 @@ const resolvers = {
 
         return book
       }
-
-      // if (!author) {
-      //   try {
-      //     await author.save()
-      //   } catch (error) {
-      //     throw new GraphQLError('Saving author failed', {
-      //       extensions: {
-      //         code: 'BAD_USER_INPUT',
-      //         invalidArgs: args.name,
-      //         error
-      //       }
-      //     })
-      //   }
-      // }
 
       try {
         book.author = author
