@@ -5,9 +5,13 @@ import Authors from './components/Authors'
 import Books from './components/Books'
 import NewBook from './components/NewBook'
 import Notification from './components/Notification'
+import LoginForm from './components/LoginForm'
+import { useApolloClient } from '@apollo/client'
 
 const App = () => {
   const [ errorMessage, setErrorMessage ] = useState(null)
+  const [ token, setToken ] = useState(null)
+  const client = useApolloClient()
 
   const padding = {
     padding: 10
@@ -20,6 +24,24 @@ const App = () => {
     }, 3000)
   }
 
+  const logout = () => {
+    setToken(null)
+    localStorage.clear()
+    client.resetStore()
+  }
+
+  if (!token) {
+    return (
+      <>
+        <Notification errorMessage={errorMessage} />
+        <LoginForm
+          setToken={setToken}
+          setError={notify}
+        />
+      </>
+    )
+  }
+
   return (
     <>
       <Notification errorMessage={errorMessage}/>
@@ -28,6 +50,7 @@ const App = () => {
           <Link style={padding} to='/'>Authors</Link>
           <Link style={padding} to='/books'>Books</Link>
           <Link style={padding} to='/new-book'>Add Book</Link>
+          <button onClick={logout}>logout</button>
         </nav>
         <Routes>
           <Route path='/' element={<Authors setError={notify} />} />
