@@ -3,8 +3,8 @@
 ## GraphQL
 - [GraphQL-server](./grapql-server/)
 - [React and GraphQL](./react-graphql/)
-- Database and user administration
-- Loging and updating the cache
+- [Database and user administration](./grapql-server/)
+- [Loging and updating the cache](./react-graphql/)
 - Fragments and subscriptions
 
 ## Resources
